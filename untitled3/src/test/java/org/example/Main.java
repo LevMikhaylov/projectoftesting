@@ -7,28 +7,59 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.PageFactory;
-
+import io.qameta.allure.Step;
+import io.qameta.allure.junit5.AllureJunit5;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtendWith;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
-    public static void main(String[] args) {
-        System.setProperty("webdriver.chrome.driver", "C:\\Users\\Student\\Downloads\\chromedriver-win64\\chromedriver.exe");
-        WebDriver driver = new ChromeDriver();
-        TestTheInternetHomePage theIntenetHomePage = new TestTheInternetHomePage(driver);
-        theIntenetHomePage.open();
-        theIntenetHomePage.test_PageTitle();
-        theIntenetHomePage.test_checkHeading();
-        theIntenetHomePage.test_linktoabtesting();
-        theIntenetHomePage.test_linktoaddremoveelements();
-        theIntenetHomePage.test_linktoBasicAuth();
-        theIntenetHomePage.test_linktoBrokenImages();
-        theIntenetHomePage.test_linktocheckboxes();
+    
+    private static WebDriver driver;
+    @BeforeAll
+    public static void main(String[] args) throws IllegalArgumentException{
+        String browser = System.getProperty("browser", "chrome").toLowerCase(); // Получаем имя браузера из системных свойств
+
+        switch (browser) {
+            case "chrome":
+                System.setProperty("webdriver.chrome.driver", "C:\\Users\\Student\\Downloads\\chromedriver-win64\\chromedriver.exe");
+                driver = new ChromeDriver();
+                break;
+
+            case "firefox":
+                System.setProperty("webdriver.gecko.driver", "C:\\Users\\Student\\Downloads\\geckodriver\\geckodriver.exe");
+                driver = new FirefoxDriver();
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unsupported browser: " + browser);
+        }
+    }
+    @Step("Запуск тестов на главной странице")
+    public void runTests() {
+        TestTheInternetHomePage theInternetHomePage = new TestTheInternetHomePage(driver);
+        theInternetHomePage.open();
+        theInternetHomePage.test_PageTitle();
+        theInternetHomePage.test_checkHeading();
+        theInternetHomePage.test_linktoabtesting();
+        theInternetHomePage.test_linktoaddremoveelements();
+        theInternetHomePage.test_linktoBasicAuth();
+        theInternetHomePage.test_linktoBrokenImages();
+        theInternetHomePage.test_linktocheckboxes();
+
         TestFramesPage framesPage = new TestFramesPage(driver);
         framesPage.test_checklist();
         framesPage.testLinkToNestedFrames();
         framesPage.testLinkToIFrame();
-        driver.quit();
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
     }
 }
 
